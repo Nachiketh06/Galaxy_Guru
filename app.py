@@ -51,8 +51,13 @@ if question:
         if result.get("error"):
             st.error(result["error"])
         else:
-            # Save to chat history
-            st.session_state.chat_history.append((question, result["answer"], education_level))
+            st.session_state.chat_history.append((
+                question,
+                result["answer"],
+                education_level,
+                result.get("follow_up_questions", []),
+                result.get("sources", [])
+            ))
             new_answer = result["answer"]
 
 # ----- Show Chat History -----
@@ -61,11 +66,11 @@ st.markdown("### 📜 Conversation History")
 
 # If new question was asked, stream it at top, then render others below
 if new_answer:
-    user_q, _, level = st.session_state.chat_history[-1]
+    user_q, bot_a, level, followups, sources = st.session_state.chat_history[-1]
 
     # STREAM the latest one first (on top)
     with st.chat_message("user"):
-        st.markdown(f"**You ({level}):** {question}")
+        st.markdown(f"**You ({level}):** {user_q}")
 
     typing_placeholder = st.empty()
     typing_placeholder.markdown("_Astronomy AI is typing..._")
@@ -74,26 +79,46 @@ if new_answer:
     with st.chat_message("assistant"):
         placeholder = st.empty()
         full_text = ""
-        for char in new_answer:
+        for char in bot_a:
             full_text += char
             placeholder.markdown(f"**Astronomy AI:** {full_text}")
             time.sleep(random.uniform(0.008, 0.015))
 
-    typing_placeholder.empty()
+        # Display follow-up questions
+        if followups:
+            st.markdown("#### 🤔 Follow-up Questions")
+            for fq in followups:
+                st.markdown(f"- {fq}")
 
-    # Now show the rest (everything *except* the last one), newest on top
+        # Display source documents
+        if sources:
+            with st.expander("📚 View Sources"):
+                for i, src in enumerate(sources, 1):
+                    st.markdown(f"**Source {i}:** {src[:500]}...")
+
+    typing_placeholder.empty()
     rest_history = st.session_state.chat_history[:-1][::-1]
 else:
-    # No new question: show everything as static, newest first
     rest_history = st.session_state.chat_history[::-1]
 
-# Show the rest of the chat history
-for user_q, bot_a, level in rest_history:
+# ----- Show previous messages
+for user_q, bot_a, level, followups, sources in rest_history:
     with st.chat_message("user"):
         st.markdown(f"**You ({level}):** {user_q}")
     with st.chat_message("assistant"):
         st.markdown(f"**Astronomy AI:** {bot_a}")
 
+        if followups:
+            st.markdown("#### 🤔 Follow-up Questions")
+            for fq in followups:
+                st.markdown(f"- {fq}")
+
+        if sources:
+            with st.expander("📚 View Sources"):
+                for i, src in enumerate(sources, 1):
+                    st.markdown(f"**Source {i}:** {src[:500]}...")
+
+# ----- Footer
 st.markdown("---")
 st.caption("🚀 Powered by LangChain, Ollama, and Streamlit")
 st.markdown("🌟 Created by Nachiketh")
