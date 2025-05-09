@@ -73,7 +73,7 @@ if new_answer:
         st.markdown(f"**You ({level}):** {user_q}")
 
     typing_placeholder = st.empty()
-    typing_placeholder.markdown("_Astronomy AI is typing..._")
+    typing_placeholder.markdown("_Astronomy AI is Responding..._")
     time.sleep(1)
 
     with st.chat_message("assistant"):
