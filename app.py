@@ -86,9 +86,10 @@ if new_answer:
 
         # Display follow-up questions
         if followups:
-            st.markdown("#### 🤔 Follow-up Questions")
-            for fq in followups:
-                st.markdown(f"- {fq}")
+                with st.expander("🔍 Show Follow-Up Questions"):
+                    for fq in followups:
+                        st.markdown(f"- {fq}")
+
 
         # Display source documents
         if sources:
@@ -120,5 +121,10 @@ for user_q, bot_a, level, followups, sources in rest_history:
 
 # ----- Footer
 st.markdown("---")
-st.caption("🚀 Powered by LangChain, Ollama, and Streamlit")
+st.caption("Powered by LangChain, Ollama, and Streamlit")
 st.markdown("🌟 Created by Nachiketh")
+
+
+
+
+
